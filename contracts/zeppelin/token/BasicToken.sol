@@ -19,7 +19,7 @@ contract BasicToken is ERC20Basic {
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
-  function transfer(address _to, uint256 _value) public returns (bool) {
+  /*function transfer(address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
 
     // SafeMath.sub will throw if there is not enough balance.
@@ -27,6 +27,16 @@ contract BasicToken is ERC20Basic {
     balances[_to] = balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
     return true;
+  }*/
+  function transfer(address _to, uint256 _value) public returns (bool success) {
+    if (balances[msg.sender] >= _value) {
+      balances[msg.sender] = balances[msg.sender].sub(_value);
+      balances[_to] = balances[_to].add(_value);
+      Transfer(msg.sender, _to, _value);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**

@@ -23,7 +23,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _to address The address which you want to transfer to
    * @param _value uint256 the amount of tokens to be transferred
    */
-  function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+  /*function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
 
     uint256 _allowance = allowed[_from][msg.sender];
@@ -36,6 +36,17 @@ contract StandardToken is ERC20, BasicToken {
     allowed[_from][msg.sender] = _allowance.sub(_value);
     Transfer(_from, _to, _value);
     return true;
+  }*/
+  function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
+    if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value) {
+      balances[_to] = balances[_to].add(_value);
+      balances[_from] = balances[_from].sub(_value);
+      allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+      Transfer(_from, _to, _value);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
