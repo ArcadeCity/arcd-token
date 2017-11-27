@@ -20,13 +20,13 @@ contract('ATXCrowdsale', function(accounts) {
   beforeEach(function() {
     currentTime = Math.floor(Date.now() / 1000);
 
-    ethFundAddress = accounts[0];
-    atxDepositAddress = accounts[1];
+    ethFundAddress = accounts[1];
+    atxDepositAddress = accounts[2];
     saleStartTimestamp = currentTime - 1;
-    saleEndTimesamp = currentTime + 10; // TODO: this might be a problem eventually
+    saleEndTimesamp = currentTime + 10; // TODO: this might be a problem eventually if tests start taking longer than 10 seconds to execute
 
-    alice = accounts[2];
-    bob = accounts[3];
+    alice = accounts[3];
+    bob = accounts[4];
 
     return ATXCrowdsale.new(ethFundAddress, atxDepositAddress, saleStartTimestamp, saleEndTimesamp)
     .then(function(instance) {
@@ -49,7 +49,7 @@ contract('ATXCrowdsale', function(accounts) {
   it("should allow tokens to be created and sent", function() {
     let initialBalanceFunding = web3.eth.getBalance(ethFundAddress).toNumber();
 
-    return atxCrowdsale.createTokens({ from: alice, value: web3.toWei('1', 'ether') })
+    return atxCrowdsale.createTokens({ from: alice, value: web3.toWei('1', 'ether'), gasPrice: 60000000000 })
     .then(function() {
       return atxToken.balanceOf(alice);
     }).then(function(balance) {
@@ -69,7 +69,19 @@ contract('ATXCrowdsale', function(accounts) {
   });
 
   it("Should not buy tokens, min amount limit", function(){
-    return atxCrowdsale.createTokens({ from: alice, value: web3.toWei('0.09', 'ether') })
+    return atxCrowdsale.createTokens({ from: alice, value: web3.toWei('0.09', 'ether'), gasPrice: 60000000000 })
+    .catch(function(exception){
+        this.savedException = exception;
+    }).then(function() {
+        assert.isNotNull(savedException, "Should have throw an exception")
+        return atxToken.balanceOf(alice);
+    }).then(function(balance){
+        assert.equal(balance.toNumber(), 0, "alice should have 0 ATX");
+    });
+  });
+
+  it("Should not buy tokens, gas price too high", function(){
+    return atxCrowdsale.createTokens({ from: alice, value: web3.toWei('1', 'ether'), gasPrice: 60000000001 })
     .catch(function(exception){
         this.savedException = exception;
     }).then(function() {
