@@ -15,18 +15,20 @@ contract ATXCrowdsale is Crowdsale {
     uint256 public constant decimals = 18;
 
     // contracts
-    address public ethFundDeposit;      // deposit address for ETH for Arcade City
-    address public atxFundDeposit;      // deposit address for Arcade City use and ATX User Fund
+    // deposit address for ETH for Arcade City
+    address public constant ETH_FUND_DEPOSIT = 0x5737F1fB6d6c0046f4d78f715626C067711d0a7A;
+    // deposit address for Arcade City use and ATX User Fund
+    address public constant ATX_FUND_DEPOSIT = 0x596fFD44Ae2796DAb38af1ca479FB1D271edFA53;
 
     // crowdsale parameters
     bool public isFinalized;              // switched to true in operational state
-    uint256 public fundingStartTimestamp;
-    uint256 public fundingEndTimestamp;
-    uint256 public constant atxFund = 92 * (10**8) * 10**decimals;   // 9.2B for Arcade City
-    uint256 public constant tokenExchangeRate = 200000; // 200,000 ATX tokens per 1 ETH
-    uint256 public constant tokenCreationCap =  10 * (10**9) * 10**decimals; // 10B total
-    uint256 public constant minBuyTokens = 20000 * 10**decimals; // 0.1 ETH
-    uint256 public constant gasPriceLimit = 60 * 10**9; // Gas limit 60 gwei
+    uint256 public constant FUNDING_START_TIMESTAMP = 1511812845;
+    uint256 public constant FUNDING_END_TIMESTAMP = FUNDING_START_TIMESTAMP + (60 * 60 * 24); // 1 day;
+    uint256 public constant ATX_FUND = 92 * (10**8) * 10**decimals;   // 9.2B for Arcade City
+    uint256 public constant TOKEN_EXCHANGE_RATE = 200000; // 200,000 ATX tokens per 1 ETH
+    uint256 public constant TOKEN_CREATION_CAP =  10 * (10**9) * 10**decimals; // 10B total
+    uint256 public constant MIN_BUY_TOKENS = 20000 * 10**decimals; // 0.1 ETH
+    uint256 public constant GAS_PRICE_LIMIT = 60 * 10**9; // Gas limit 60 gwei
 
     // events
     event CreateATX(address indexed _to, uint256 _value);
@@ -34,30 +36,19 @@ contract ATXCrowdsale is Crowdsale {
     ATXToken public token;
 
     // constructor
-    function ATXCrowdsale (
-      address _ethFundDeposit,
-      address _atxFundDeposit,
-      uint256 _fundingStartTimestamp,
-      uint256 _fundingEndTimestamp
-    )
-      public
-    {
+    function ATXCrowdsale () public {
       token = new ATXToken();
 
       // sanity checks
-      assert(_ethFundDeposit != 0x0);
-      assert(_atxFundDeposit != 0x0);
-      assert(_fundingStartTimestamp < _fundingEndTimestamp);
+      assert(ETH_FUND_DEPOSIT != 0x0);
+      assert(ATX_FUND_DEPOSIT != 0x0);
+      assert(FUNDING_START_TIMESTAMP < FUNDING_END_TIMESTAMP);
       assert(uint256(token.decimals()) == decimals);
 
-      isFinalized = false;                   //controls pre through crowdsale state
-      ethFundDeposit = _ethFundDeposit;
-      atxFundDeposit = _atxFundDeposit;
-      fundingStartTimestamp = _fundingStartTimestamp;
-      fundingEndTimestamp = _fundingEndTimestamp;
+      isFinalized = false;
 
-      token.mint(atxFundDeposit, atxFund);
-      CreateATX(atxFundDeposit, atxFund);
+      token.mint(ATX_FUND_DEPOSIT, ATX_FUND);
+      CreateATX(ATX_FUND_DEPOSIT, ATX_FUND);
     }
 
     /// @dev Accepts ether and creates new ATX tokens.
@@ -65,24 +56,28 @@ contract ATXCrowdsale is Crowdsale {
       buyTokens(msg.sender);
     }
 
+    function () public payable {
+      buyTokens(msg.sender);
+    }
+
     // low level token purchase function
-    function buyTokens(address beneficiary) payable public {
+    function buyTokens(address beneficiary) public payable {
       require (!isFinalized);
-      require (block.timestamp >= fundingStartTimestamp);
-      require (block.timestamp <= fundingEndTimestamp);
+      require (block.timestamp >= FUNDING_START_TIMESTAMP);
+      require (block.timestamp <= FUNDING_END_TIMESTAMP);
       require (msg.value != 0);
       require (beneficiary != 0x0);
-      require (tx.gasprice <= gasPriceLimit);
+      require (tx.gasprice <= GAS_PRICE_LIMIT);
 
-      uint256 tokens = msg.value.mul(tokenExchangeRate); // check that we're not over totals
+      uint256 tokens = msg.value.mul(TOKEN_EXCHANGE_RATE); // check that we're not over totals
       uint256 checkedSupply = token.totalSupply().add(tokens);
 
       // return money if something goes wrong
-      require (tokenCreationCap >= checkedSupply);
+      require (TOKEN_CREATION_CAP >= checkedSupply);
 
       // return money if tokens is less than the min amount
       // the min amount does not apply if the availables tokens are less than the min amount.
-      require (tokens >= minBuyTokens || (tokenCreationCap.sub(token.totalSupply())) <= minBuyTokens);
+      require (tokens >= MIN_BUY_TOKENS || (TOKEN_CREATION_CAP.sub(token.totalSupply())) <= MIN_BUY_TOKENS);
 
       token.mint(beneficiary, tokens);
       CreateATX(beneficiary, tokens);  // logs token creation
@@ -92,14 +87,14 @@ contract ATXCrowdsale is Crowdsale {
 
     function finalize() public {
       require (!isFinalized);
-      require (block.timestamp > fundingEndTimestamp || token.totalSupply() == tokenCreationCap);
-      require (msg.sender == ethFundDeposit);
+      require (block.timestamp > FUNDING_END_TIMESTAMP || token.totalSupply() == TOKEN_CREATION_CAP);
+      require (msg.sender == ETH_FUND_DEPOSIT);
       isFinalized = true;
       token.finishMinting();
     }
 
     // send ether to the fund collection wallet
     function forwardFunds() internal {
-      ethFundDeposit.transfer(msg.value);
+      ETH_FUND_DEPOSIT.transfer(msg.value);
     }
 }
