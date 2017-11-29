@@ -1,4 +1,7 @@
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
+  networks: {
+    development: {
+      gas: 6000000
+    }
+  }
 };
