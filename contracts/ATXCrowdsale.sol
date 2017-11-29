@@ -16,19 +16,19 @@ contract ATXCrowdsale is Crowdsale {
 
     // contracts
     // deposit address for ETH for Arcade City
-    address public constant ETH_FUND_DEPOSIT = 0x5737F1fB6d6c0046f4d78f715626C067711d0a7A;
+    address public constant ETH_FUND_DEPOSIT = 0x3b2470E99b402A333a82eE17C3244Ff04C79Ec6F;
     // deposit address for Arcade City use and ATX User Fund
-    address public constant ATX_FUND_DEPOSIT = 0x596fFD44Ae2796DAb38af1ca479FB1D271edFA53;
+    address public constant ATX_FUND_DEPOSIT = 0x3b2470E99b402A333a82eE17C3244Ff04C79Ec6F;
 
     // crowdsale parameters
-    bool public isFinalized;              // switched to true in operational state
-    uint256 public constant FUNDING_START_TIMESTAMP = 1511812845;
-    uint256 public constant FUNDING_END_TIMESTAMP = FUNDING_START_TIMESTAMP + (60 * 60 * 24); // 1 day;
-    uint256 public constant ATX_FUND = 92 * (10**8) * 10**decimals;   // 9.2B for Arcade City
-    uint256 public constant TOKEN_EXCHANGE_RATE = 200000; // 200,000 ATX tokens per 1 ETH
-    uint256 public constant TOKEN_CREATION_CAP =  10 * (10**9) * 10**decimals; // 10B total
-    uint256 public constant MIN_BUY_TOKENS = 20000 * 10**decimals; // 0.1 ETH
-    uint256 public constant GAS_PRICE_LIMIT = 60 * 10**9; // Gas limit 60 gwei
+    bool public isFinalized;                                                    // switched to true in operational state
+    uint256 public constant FUNDING_START_TIMESTAMP = 1511919480;               // 11/29/2017 @ 1:38am UTC
+    uint256 public constant FUNDING_END_TIMESTAMP = FUNDING_START_TIMESTAMP + (60 * 60 * 24 * 90); // 90 days
+    uint256 public constant ATX_FUND = 92 * (10**8) * 10**decimals;             // 9.2B for Arcade City
+    uint256 public constant TOKEN_EXCHANGE_RATE = 200000;                       // 200,000 ATX tokens per 1 ETH
+    uint256 public constant TOKEN_CREATION_CAP =  10 * (10**9) * 10**decimals;  // 10B total
+    uint256 public constant MIN_BUY_TOKENS = 20000 * 10**decimals;              // 0.1 ETH
+    uint256 public constant GAS_PRICE_LIMIT = 60 * 10**9;                       // Gas limit 60 gwei
 
     // events
     event CreateATX(address indexed _to, uint256 _value);
