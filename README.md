@@ -1,6 +1,6 @@
 # Arcade City Token
 
-Arcade Token (ATX) is the token created by Arcade City.
+Arcade Token (ARCD) is the token created by Arcade City.
 
 ## Getting Started
 

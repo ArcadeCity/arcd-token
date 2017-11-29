@@ -2,13 +2,13 @@ pragma solidity ^0.4.11;
 
 import "./zeppelin/token/StandardToken.sol";
 import "./zeppelin/math/SafeMath.sol";
-import "./ATXToken.sol";
+import "./ARCDToken.sol";
 
 contract Crowdsale {
     function buyTokens(address _recipient) public payable;
 }
 
-contract ATXCrowdsale is Crowdsale {
+contract ARCDCrowdsale is Crowdsale {
     using SafeMath for uint256;
 
     // metadata
@@ -17,41 +17,41 @@ contract ATXCrowdsale is Crowdsale {
     // contracts
     // deposit address for ETH for Arcade City
     address public constant ETH_FUND_DEPOSIT = 0x3b2470E99b402A333a82eE17C3244Ff04C79Ec6F;
-    // deposit address for Arcade City use and ATX User Fund
-    address public constant ATX_FUND_DEPOSIT = 0x3b2470E99b402A333a82eE17C3244Ff04C79Ec6F;
+    // deposit address for Arcade City use and ARCD User Fund
+    address public constant ARCD_FUND_DEPOSIT = 0x3b2470E99b402A333a82eE17C3244Ff04C79Ec6F;
 
     // crowdsale parameters
     bool public isFinalized;                                                    // switched to true in operational state
     uint256 public constant FUNDING_START_TIMESTAMP = 1511919480;               // 11/29/2017 @ 1:38am UTC
     uint256 public constant FUNDING_END_TIMESTAMP = FUNDING_START_TIMESTAMP + (60 * 60 * 24 * 90); // 90 days
-    uint256 public constant ATX_FUND = 92 * (10**8) * 10**decimals;             // 9.2B for Arcade City
-    uint256 public constant TOKEN_EXCHANGE_RATE = 200000;                       // 200,000 ATX tokens per 1 ETH
+    uint256 public constant ARCD_FUND = 92 * (10**8) * 10**decimals;            // 9.2B for Arcade City
+    uint256 public constant TOKEN_EXCHANGE_RATE = 200000;                       // 200,000 ARCD tokens per 1 ETH
     uint256 public constant TOKEN_CREATION_CAP =  10 * (10**9) * 10**decimals;  // 10B total
     uint256 public constant MIN_BUY_TOKENS = 20000 * 10**decimals;              // 0.1 ETH
     uint256 public constant GAS_PRICE_LIMIT = 60 * 10**9;                       // Gas limit 60 gwei
 
     // events
-    event CreateATX(address indexed _to, uint256 _value);
+    event CreateARCD(address indexed _to, uint256 _value);
 
-    ATXToken public token;
+    ARCDToken public token;
 
     // constructor
-    function ATXCrowdsale () public {
-      token = new ATXToken();
+    function ARCDCrowdsale () public {
+      token = new ARCDToken();
 
       // sanity checks
       assert(ETH_FUND_DEPOSIT != 0x0);
-      assert(ATX_FUND_DEPOSIT != 0x0);
+      assert(ARCD_FUND_DEPOSIT != 0x0);
       assert(FUNDING_START_TIMESTAMP < FUNDING_END_TIMESTAMP);
       assert(uint256(token.decimals()) == decimals);
 
       isFinalized = false;
 
-      token.mint(ATX_FUND_DEPOSIT, ATX_FUND);
-      CreateATX(ATX_FUND_DEPOSIT, ATX_FUND);
+      token.mint(ARCD_FUND_DEPOSIT, ARCD_FUND);
+      CreateARCD(ARCD_FUND_DEPOSIT, ARCD_FUND);
     }
 
-    /// @dev Accepts ether and creates new ATX tokens.
+    /// @dev Accepts ether and creates new ARCD tokens.
     function createTokens() payable external {
       buyTokens(msg.sender);
     }
@@ -80,7 +80,7 @@ contract ATXCrowdsale is Crowdsale {
       require (tokens >= MIN_BUY_TOKENS || (TOKEN_CREATION_CAP.sub(token.totalSupply())) <= MIN_BUY_TOKENS);
 
       token.mint(beneficiary, tokens);
-      CreateATX(beneficiary, tokens);  // logs token creation
+      CreateARCD(beneficiary, tokens);  // logs token creation
 
       forwardFunds();
     }
